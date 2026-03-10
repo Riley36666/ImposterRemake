@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./App.css";
 
 const API = "http://localhost:3001/api"; // change to your PC IP
 
