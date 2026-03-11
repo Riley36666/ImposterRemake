@@ -6,10 +6,10 @@ import cors from "cors";
 
 
 dotenv.config();
-const port = process.env.PORT || 3001;
+const port = 9999;
 const app = express();
 app.use(cors(
-    {origin: "http://localhost:3000"}
+    {origin: "*" }
 ));
 app.use(express.json());
 
@@ -20,7 +20,7 @@ app.get('/', (req: Request, res: Response) => {
 
 function startServer() {
     try{
-        app.listen(port, () => {      
+        app.listen(port,"0.0.0.0", () => {      
             console.log( `server started at http://localhost:${port}`);
         });
     } catch {

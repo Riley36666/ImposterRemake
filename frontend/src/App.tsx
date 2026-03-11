@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
-const API = "http://localhost:3001/api"; // change to your PC IP
+const API = "https://sideprojectnotion.duckdns.org/api"; // change to your PC IP
 
 export default function App() {
 
