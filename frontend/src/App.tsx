@@ -126,29 +126,43 @@ export default function App() {
       )}
 
       {screen === "player" && (
-        <div className="card">
+  <div className="card">
 
-          <h2>Player {currentPlayer+1}</h2>
+    <h2>Player {currentPlayer+1}</h2>
 
-          {!word && (
-            <button className="big" onClick={revealWord}>
-              Reveal Word
-            </button>
-          )}
+    {!word && (
+      <button className="big" onClick={revealWord}>
+        Reveal Word
+      </button>
+    )}
 
-          {word && (
-            <>
-              <h1>{word}</h1>
-              <h3>{role}</h3>
+    {word && (
+      <div className="roleCard">
 
-              <button onClick={nextPlayer}>
-                Pass Phone
-              </button>
-            </>
-          )}
+        <img
+          className="roleImage"
+          src={role === "IMPOSTER"
+            ? "/imposter.png"
+            : "/normal.png"}
+          alt="role"
+        />
 
+
+        <div className="roleDesc">
+          {role === "IMPOSTER"
+            ? `Your word is: ${word}`
+            : `Your word is: ${word}`}
         </div>
-      )}
+
+        <button onClick={nextPlayer}>
+          Pass Phone
+        </button>
+
+      </div>
+    )}
+
+  </div>   
+)}
 
       {screen === "vote" && (
         <div className="card">

@@ -1,56 +1,94 @@
 body {
-  margin:0;
-  background:#111;
-  font-family:system-ui;
-  color:white;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-.app{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
+.app {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(180deg,#ff5a3a,#ff2c55);
 }
 
-.card{
-  width:90%;
-  max-width:400px;
-  text-align:center;
-  background:#1f1f1f;
-  padding:30px;
-  border-radius:20px;
-  box-shadow:0 0 20px rgba(0,0,0,0.4);
+.card {
+  width: 320px;
+  background: white;
+  border-radius: 22px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
 }
 
-h1{
-  font-size:32px;
+h1 {
+  margin: 10px 0;
 }
 
-h2{
-  font-size:26px;
+h2 {
+  margin-bottom: 20px;
 }
 
-button{
-  width:100%;
-  padding:18px;
-  margin-top:12px;
-  border:none;
-  border-radius:12px;
-  font-size:18px;
-  background:#3b82f6;
-  color:white;
+h3 {
+  color: #888;
+  margin-top: 5px;
 }
 
-button.big{
-  font-size:22px;
-  padding:22px;
+select,
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 16px;
 }
 
-input,select{
-  width:100%;
-  padding:14px;
-  margin-top:12px;
-  border-radius:10px;
-  border:none;
-  font-size:16px;
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #ff3c5c;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.03);
+}
+
+button.big {
+  font-size: 20px;
+  padding: 18px;
+}
+
+.roleCard {
+  margin-top: 20px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f7f7f7;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.roleImage {
+  width: 100%;
+  height: 425px;
+  object-fit: cover;
+  background: orange;
+}
+
+
+
+.roleDesc {
+  font-size: 14px;
+  color: black;
+  padding: 0 20px 20px 20px;
 }
