@@ -130,8 +130,12 @@ router.get("/player/:id", (req: Request, res: Response) => {
     return res.status(400).json({ error: "Invalid player ID" });
   }
 
-  const word = game.words[playerId];
+  let word = game.words[playerId];
   const isImposter = game.imposters.includes(playerId);
+  
+  if(isImposter) {
+    word = ""
+  }
 
   res.json({
     player: playerId,
