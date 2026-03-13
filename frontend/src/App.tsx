@@ -2,56 +2,79 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 
 const API = "https://sideprojectnotion.duckdns.org/api";
+<<<<<<< HEAD
 const mrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite"
+=======
+const mrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite";
+
+type Screen = "main-menu" | "settings" | "player" | "vote" | "result";
+
+type Result = {
+  votedOut: number;
+  imposterCaught: boolean;
+  imposters: number[];
+};
+>>>>>>> dev
 
 export default function App() {
-
-  const [screen, setScreen] = useState<"settings" | "player" | "vote" | "result">("settings");
+  const [screen, setScreen] = useState<Screen>("main-menu");
 
   const [categories, setCategories] = useState<string[]>([]);
   const [category, setCategory] = useState("animals");
+
   const [players, setPlayers] = useState(4);
   const [imposters, setImposters] = useState(1);
+<<<<<<< HEAD
   const [mrWhite, setmrWhite] = useState(false);
+=======
+  const [mrWhite, setMrWhite] = useState(false);
+
+>>>>>>> dev
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [word, setWord] = useState("");
   const [role, setRole] = useState("");
-
+  // eslint-disable-next-line
   const [votes, setVotes] = useState<number[]>([]);
-  const [result, setResult] = useState<any>(null);
-
-  
+  const [result, setResult] = useState<Result | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
+
+  const baseAPI = mrWhite ? mrWhiteAPI : API;
 
   useEffect(() => {
     fetch(`${API}/categories`)
       .then(res => res.json())
-      .then(data => setCategories(data));
+      .then(data => setCategories(data))
+      .catch(() => console.log("Failed to load categories"));
   }, []);
 
   function goBack() {
-    if (screen === "vote") {
-      setScreen("settings");
-    } else if (screen === "player") {
-      setScreen("settings");
-    }
+    setScreen("main-menu");
   }
 
-  async function startNormal() {
+  function goSettings() {
+    setScreen("settings");
+  }
 
-    await fetch(`${API}/start`, {
+  async function start() {
+    if (players < 3) {
+      alert("Minimum 3 players");
+      return;
+    }
+
+    await fetch(`${baseAPI}/start`, {
       method: "POST",
-      headers: {"Content-Type":"application/json"},
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ category, players, imposters })
     });
 
     setVotes(Array(players).fill(0));
     setCurrentPlayer(0);
-    setHasVoted(false); 
+    setHasVoted(false);
+    setWord("");
     setScreen("player");
   }
-  async function startMrwhite() {
 
+<<<<<<< HEAD
     await fetch(`${mrWhiteAPI}/start`, {
       method: "POST",
       headers: {"Content-Type":"application/json"},
@@ -63,8 +86,14 @@ export default function App() {
     setHasVoted(false); 
     setScreen("player");
   }
+=======
+>>>>>>> dev
   async function revealWord() {
+    try {
+      const res = await fetch(`${baseAPI}/player/${currentPlayer}`);
+      const data = await res.json();
 
+<<<<<<< HEAD
     if(!mrWhite){
       const res = await fetch(`${API}/player/${currentPlayer}`);
     const data = await res.json();
@@ -84,9 +113,16 @@ export default function App() {
           }
           setRole(data.isImposter ? "IMPOSTER" : "NORMAL");
     }}
+=======
+      setWord(data.word ? `Your word is: ${data.word}` : "You are Mr White");
+      setRole(data.isImposter ? "IMPOSTER" : "NORMAL");
+    } catch {
+      setWord("Server error");
+    }
+  }
+>>>>>>> dev
 
   function nextPlayer() {
-
     setWord("");
 
     if (currentPlayer + 1 >= players) {
@@ -96,31 +132,39 @@ export default function App() {
     }
   }
 
-  async function vote(id:number) {
+  async function vote(id: number) {
+    if (hasVoted) return;
 
-    if (hasVoted) return; 
+    try {
+      const res = await fetch(`${baseAPI}/voteplayer/${id}`, {
+        method: "POST"
+      });
 
-    const res = await fetch(`${API}/voteplayer/${id}`, { method:"POST" });
-    const data = await res.json();
+      const data = await res.json();
 
-    setVotes(data.votes);
-    setHasVoted(true); 
+      setVotes(data.votes);
+      setHasVoted(true);
+    } catch {
+      alert("Vote failed");
+    }
   }
 
   async function showResult() {
+    try {
+      const res = await fetch(`${baseAPI}/result`);
+      const data = await res.json();
 
-    const res = await fetch(`${API}/result`);
-    const data = await res.json();
-
-    setResult(data);
-    setScreen("result");
+      setResult(data);
+      setScreen("result");
+    } catch {
+      alert("Failed to fetch result");
+    }
   }
 
   async function restart() {
+    await fetch(`${baseAPI}/restart`, { method: "POST" });
 
-    await fetch(`${API}/restart`, { method:"POST" });
-
-    setScreen("settings");
+    setScreen("main-menu");
     setResult(null);
     setWord("");
     setHasVoted(false);
@@ -129,49 +173,78 @@ export default function App() {
   return (
     <div className="app">
 
-      {/* Global Back Arrow */}
-      {screen !== "settings" && screen !== "result" && (
-        <button className="backArrow" onClick={goBack}>
-          ←
-        </button>
+      {screen !== "main-menu" && screen !== "result" && screen !== "settings" && (
+        <button className="backArrow" onClick={goBack}>←</button>
+      )}
+
+      {screen === "main-menu" && (
+        <div className="card">
+          <h1>Imposter Game</h1>
+
+          <button onClick={start}>
+            Start Game
+          </button>
+
+          <button onClick={goSettings}>
+            Settings
+          </button>
+        </div>
       )}
 
       {screen === "settings" && (
-        <div className="card">
+        <div className="settingsPanel">
 
-          <h1>Imposter Game</h1>
+          <div className="catergoryGroup">
+            <label>Category</label>
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+            >
+              {categories.map(c => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </div>
 
-          <select value={category} onChange={e=>setCategory(e.target.value)}>
-            {categories.map(c => <option key={c}>{c}</option>)}
-          </select>
+          <div className="formGroup">
+            <label>Players</label>
+            <input
+              type="number"
+              value={players}
+              onChange={e => setPlayers(Number(e.target.value))}
+            />
+          </div>
 
-          <input
-            type="number"
-            value={players}
-            onChange={e=>setPlayers(Number(e.target.value))}
-            placeholder="Players"
-          />
+          <div className="formGroup">
+            <label>Imposters</label>
+            <input
+              type="number"
+              value={imposters}
+              onChange={e => setImposters(Number(e.target.value))}
+            />
+          </div>
 
-          <input
-            type="number"
-            value={imposters}
-            onChange={e=>setImposters(Number(e.target.value))}
-            placeholder="Imposters"
-          />
+          <div className="formGroup checkbox">
+            <label htmlFor="mrwhite">Mr White Mode</label>
+            <input
+              id="mrwhite"
+              type="checkbox"
+              checked={mrWhite}
+              onChange={e => setMrWhite(e.target.checked)}
+            />
+          </div>
 
-          <button onClick={startNormal}>
-            Start Game
+          <button onClick={goBack}>
+            Return to Main Menu
           </button>
-          <button onClick={startMrwhite}>
-            MrWhite
-          </button>
+
         </div>
       )}
 
       {screen === "player" && (
         <div className="card">
 
-          <h2>Player {currentPlayer+1}</h2>
+          <h2>Player {currentPlayer + 1}</h2>
 
           {!word && (
             <button className="big" onClick={revealWord}>
@@ -184,9 +257,7 @@ export default function App() {
 
               <img
                 className="roleImage"
-                src={role === "IMPOSTER"
-                  ? "/imposter.png"
-                  : "/normal.png"}
+                src={role === "IMPOSTER" ? "/imposter.png" : "/normal.png"}
                 alt="role"
               />
 
@@ -209,20 +280,18 @@ export default function App() {
 
           <h2>Vote Player</h2>
 
-          {Array.from({length:players}).map((_,i)=>(
+          {Array.from({ length: players }).map((_, i) => (
             <button
               key={i}
               onClick={async () => {
-                  await vote(i);
-                  await showResult();
-                }}
+                await vote(i);
+                await showResult();
+              }}
               disabled={hasVoted}
-              
             >
-              Player {i+1} 
+              Player {i + 1}
             </button>
           ))}
-
 
         </div>
       )}
@@ -230,13 +299,17 @@ export default function App() {
       {screen === "result" && result && (
         <div className="card">
 
-          <h2>Player {result.votedOut+1} was voted out</h2>
+          <h2>Player {result.votedOut + 1} was voted out</h2>
 
           <h3>
-            {result.imposterCaught ? "Imposter Caught!" : "Imposter Escaped!"}
+            {result.imposterCaught
+              ? "Imposter Caught!"
+              : "Imposter Escaped!"}
           </h3>
 
-          <p>Imposters: {result.imposters.map((i:number)=>i+1).join(", ")}</p>
+          <p>
+            Imposters: {result.imposters.map(i => i + 1).join(", ")}
+          </p>
 
           <button onClick={restart}>
             New Game
