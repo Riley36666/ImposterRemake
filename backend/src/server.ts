@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express, { Request, Response, Router } from "express";
-import api from "./api/api"
+import api from "./api/NormalGameAPI";
+import mrWhite from "./api/mrWhite";
 import cors from "cors";
 
 
@@ -14,6 +15,7 @@ app.use(cors(
 app.use(express.json());
 
 app.use('/api/', api);
+app.use('/mrWhite', mrWhite);
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!');
 });

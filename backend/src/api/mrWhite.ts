@@ -54,9 +54,7 @@ for (const file of files) {
 }
 
 
-
-/* SETTINGS ROUTE */
-router.post("/settings", (req: Request, res: Response) => {
+router.post("/start", (req: Request, res: Response) => {
   const { category, players, imposters } = req.body;
 
   if (!categories[category]) {
@@ -76,18 +74,6 @@ router.post("/settings", (req: Request, res: Response) => {
     players,
     imposters
   };
-
-  res.json({
-    success: true,
-    settings
-  });
-});
-
-
-
-
-/* START GAME */
-router.post("/start", (req: Request, res: Response) => {
 
   const categoryData = categories[settings.category];
   if (!categoryData) {
@@ -130,6 +116,7 @@ router.post("/start", (req: Request, res: Response) => {
 
 
 
+
 /* GET PLAYER WORD */
 router.get("/player/:id", (req: Request, res: Response) => {
 
@@ -143,8 +130,12 @@ router.get("/player/:id", (req: Request, res: Response) => {
     return res.status(400).json({ error: "Invalid player ID" });
   }
 
-  const word = game.words[playerId];
+  let word = game.words[playerId];
   const isImposter = game.imposters.includes(playerId);
+  
+  if(isImposter) {
+    word = ""
+  }
 
   res.json({
     player: playerId,
@@ -232,5 +223,10 @@ router.post("/restart", (req: Request, res: Response) => {
   });
 
 });
+
+
+
+
+
 
 export default router;
