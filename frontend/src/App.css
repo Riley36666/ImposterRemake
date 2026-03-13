@@ -1,6 +1,8 @@
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
+
+  background: linear-gradient(180deg, #ff5a3a, #ff2c55);
 }
 
 .app {
@@ -92,3 +94,35 @@ button.big {
   color: black;
   padding: 0 20px 20px 20px;
 }
+
+.backArrow {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: 50%;
+  border: none;
+
+  font-size: 22px;
+  font-weight: bold;
+
+  background: #2c2c2c;
+  color: white;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+.backArrow:hover {
+  background: #3a3a3a;
+}
+

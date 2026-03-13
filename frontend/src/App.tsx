@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
-//const API = "https://sideprojectnotion.duckdns.org/api"; // change to your PC IP
-//const MrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite" //Change to IP
-const API = "http://localhost:9999/api"
-const MrWhiteAPI = "http://localhost:9999/mrWhite"
+const API = "https://sideprojectnotion.duckdns.org/api";
 
 export default function App() {
 
@@ -28,6 +25,14 @@ export default function App() {
       .then(data => setCategories(data));
   }, []);
 
+  function goBack() {
+    if (screen === "vote") {
+      setScreen("settings");
+    } else if (screen === "player") {
+      setScreen("settings");
+    }
+  }
+
   async function saveSettings() {
 
     await fetch(`${API}/settings`, {
@@ -41,22 +46,8 @@ export default function App() {
     setVotes(Array(players).fill(0));
     setCurrentPlayer(0);
     setScreen("player");
-
   }
-  async function saveSettingsmrWhite() {
-    await fetch(`${MrWhiteAPI}/settings`, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ category, players, imposters })
-    });
-    await fetch(`${MrWhiteAPI}/start`, { method:"POST" });
 
-    setVotes(Array(players).fill(0));
-    setCurrentPlayer(0);
-    setScreen("player");
-
-
-  }
   async function revealWord() {
 
     const res = await fetch(`${API}/player/${currentPlayer}`);
@@ -64,7 +55,6 @@ export default function App() {
 
     setWord(data.word);
     setRole(data.isImposter ? "IMPOSTER" : "NORMAL");
-
   }
 
   function nextPlayer() {
@@ -76,7 +66,6 @@ export default function App() {
     } else {
       setCurrentPlayer(currentPlayer + 1);
     }
-
   }
 
   async function vote(id:number) {
@@ -85,7 +74,6 @@ export default function App() {
     const data = await res.json();
 
     setVotes(data.votes);
-
   }
 
   async function showResult() {
@@ -95,7 +83,6 @@ export default function App() {
 
     setResult(data);
     setScreen("result");
-
   }
 
   async function restart() {
@@ -105,11 +92,17 @@ export default function App() {
     setScreen("settings");
     setResult(null);
     setWord("");
-
   }
 
   return (
     <div className="app">
+
+      {/* Global Back Arrow */}
+      {screen !== "settings" && screen !== "result" && (
+        <button className="backArrow" onClick={goBack}>
+          ←
+        </button>
+      )}
 
       {screen === "settings" && (
         <div className="card">
@@ -137,50 +130,45 @@ export default function App() {
           <button onClick={saveSettings}>
             Start Game
           </button>
-          <button onClick={saveSettingsmrWhite}>
-            Play Mr White
-          </button>
+
         </div>
       )}
 
       {screen === "player" && (
-  <div className="card">
+        <div className="card">
 
-    <h2>Player {currentPlayer+1}</h2>
+          <h2>Player {currentPlayer+1}</h2>
 
-    {!word && (
-      <button className="big" onClick={revealWord}>
-        Reveal Word
-      </button>
-    )}
+          {!word && (
+            <button className="big" onClick={revealWord}>
+              Reveal Word
+            </button>
+          )}
 
-    {word && (
-      <div className="roleCard">
+          {word && (
+            <div className="roleCard">
 
-        <img
-          className="roleImage"
-          src={role === "IMPOSTER"
-            ? "/imposter.png"
-            : "/normal.png"}
-          alt="role"
-        />
+              <img
+                className="roleImage"
+                src={role === "IMPOSTER"
+                  ? "/imposter.png"
+                  : "/normal.png"}
+                alt="role"
+              />
 
+              <div className="roleDesc">
+                Your word is: {word}
+              </div>
 
-        <div className="roleDesc">
-          {role === "IMPOSTER"
-            ? `Your word is: ${word}`
-            : `Your word is: ${word}`}
+              <button onClick={nextPlayer}>
+                Pass Phone
+              </button>
+
+            </div>
+          )}
+
         </div>
-
-        <button onClick={nextPlayer}>
-          Pass Phone
-        </button>
-
-      </div>
-    )}
-
-  </div>   
-)}
+      )}
 
       {screen === "vote" && (
         <div className="card">
@@ -220,5 +208,4 @@ export default function App() {
 
     </div>
   );
-
 }
