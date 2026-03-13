@@ -12,7 +12,7 @@ export default function App() {
   const [category, setCategory] = useState("animals");
   const [players, setPlayers] = useState(4);
   const [imposters, setImposters] = useState(1);
-
+  const [mrWhite, setmrWhite] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [word, setWord] = useState("");
   const [role, setRole] = useState("");
@@ -57,7 +57,7 @@ export default function App() {
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({ category, players, imposters })
     });
-
+    setmrWhite(true)
     setVotes(Array(players).fill(0));
     setCurrentPlayer(0);
     setHasVoted(false); 
@@ -65,7 +65,8 @@ export default function App() {
   }
   async function revealWord() {
 
-    const res = await fetch(`${API}/player/${currentPlayer}`);
+    if(!mrWhite){
+      const res = await fetch(`${API}/player/${currentPlayer}`);
     const data = await res.json();
     if(!data.word) {
       setWord("You are Mr White")
@@ -73,7 +74,16 @@ export default function App() {
     setWord("Your word is: " + data.word || "You are Mr White");
     }
     setRole(data.isImposter ? "IMPOSTER" : "NORMAL");
-  }
+    }else{
+      const res = await fetch(`${mrWhiteAPI}/player/${currentPlayer}`);
+          const data = await res.json();
+          if(!data.word) {
+            setWord("You are Mr White")
+          } else{
+          setWord("Your word is: " + data.word || "You are Mr White");
+          }
+          setRole(data.isImposter ? "IMPOSTER" : "NORMAL");
+    }}
 
   function nextPlayer() {
 
