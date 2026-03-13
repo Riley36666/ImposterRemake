@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 
 const API = "https://sideprojectnotion.duckdns.org/api";
-<<<<<<< HEAD
-const mrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite"
-=======
 const mrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite";
 
 type Screen = "main-menu" | "settings" | "player" | "vote" | "result";
@@ -14,7 +11,6 @@ type Result = {
   imposterCaught: boolean;
   imposters: number[];
 };
->>>>>>> dev
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("main-menu");
@@ -24,12 +20,8 @@ export default function App() {
 
   const [players, setPlayers] = useState(4);
   const [imposters, setImposters] = useState(1);
-<<<<<<< HEAD
-  const [mrWhite, setmrWhite] = useState(false);
-=======
   const [mrWhite, setMrWhite] = useState(false);
 
->>>>>>> dev
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [word, setWord] = useState("");
   const [role, setRole] = useState("");
@@ -74,53 +66,17 @@ export default function App() {
     setScreen("player");
   }
 
-<<<<<<< HEAD
-    await fetch(`${mrWhiteAPI}/start`, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ category, players, imposters })
-    });
-    setmrWhite(true)
-    setVotes(Array(players).fill(0));
-    setCurrentPlayer(0);
-    setHasVoted(false); 
-    setScreen("player");
-  }
-=======
->>>>>>> dev
   async function revealWord() {
     try {
       const res = await fetch(`${baseAPI}/player/${currentPlayer}`);
       const data = await res.json();
 
-<<<<<<< HEAD
-    if(!mrWhite){
-      const res = await fetch(`${API}/player/${currentPlayer}`);
-    const data = await res.json();
-    if(!data.word) {
-      setWord("You are Mr White")
-    } else{
-    setWord("Your word is: " + data.word || "You are Mr White");
-    }
-    setRole(data.isImposter ? "IMPOSTER" : "NORMAL");
-    }else{
-      const res = await fetch(`${mrWhiteAPI}/player/${currentPlayer}`);
-          const data = await res.json();
-          if(!data.word) {
-            setWord("You are Mr White")
-          } else{
-          setWord("Your word is: " + data.word || "You are Mr White");
-          }
-          setRole(data.isImposter ? "IMPOSTER" : "NORMAL");
-    }}
-=======
       setWord(data.word ? `Your word is: ${data.word}` : "You are Mr White");
       setRole(data.isImposter ? "IMPOSTER" : "NORMAL");
     } catch {
       setWord("Server error");
     }
   }
->>>>>>> dev
 
   function nextPlayer() {
     setWord("");
