@@ -117,7 +117,7 @@ router.post("/start", (req: Request, res: Response) => {
 
 
 
-/* GET PLAYER WORD */
+
 router.get("/player/:id", (req: Request, res: Response) => {
 
   if (!game) {
@@ -145,7 +145,6 @@ router.get("/player/:id", (req: Request, res: Response) => {
 
 });
 
-/* VOTE PLAYER */
 router.post("/voteplayer/:id", (req: Request, res: Response) => {
 
   if (!game) {
@@ -177,7 +176,7 @@ router.post("/voteplayer/:id", (req: Request, res: Response) => {
 
 
 
-/* GAME RESULT */
+
 router.get("/result", (req: Request, res: Response) => {
 
   if (!game) {
@@ -201,14 +200,14 @@ router.get("/result", (req: Request, res: Response) => {
 
 
 
-/* GET AVAILABLE CATEGORIES */
+
 router.get("/categories", (req: Request, res: Response) => {
 
   res.json(Object.keys(categories));
 
 });
 
-/* RESTART GAME */
+
 router.post("/restart", (req: Request, res: Response) => {
 
   if (!game) {
