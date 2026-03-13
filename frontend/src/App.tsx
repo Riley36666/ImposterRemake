@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
-const API = "https://sideprojectnotion.duckdns.org/api";
+//const API = "https://sideprojectnotion.duckdns.org/api";
+const API = "http://localhost:9999/mrWhite"
 
 export default function App() {
 
@@ -19,6 +20,9 @@ export default function App() {
   const [votes, setVotes] = useState<number[]>([]);
   const [result, setResult] = useState<any>(null);
 
+  // NEW: track if someone already voted
+  const [hasVoted, setHasVoted] = useState(false);
+
   useEffect(() => {
     fetch(`${API}/categories`)
       .then(res => res.json())
@@ -35,16 +39,15 @@ export default function App() {
 
   async function saveSettings() {
 
-    await fetch(`${API}/settings`, {
+    await fetch(`${API}/start`, {
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({ category, players, imposters })
     });
 
-    await fetch(`${API}/start`, { method:"POST" });
-
     setVotes(Array(players).fill(0));
     setCurrentPlayer(0);
+    setHasVoted(false); // reset voting
     setScreen("player");
   }
 
@@ -70,10 +73,13 @@ export default function App() {
 
   async function vote(id:number) {
 
+    if (hasVoted) return; // prevent multiple votes
+
     const res = await fetch(`${API}/voteplayer/${id}`, { method:"POST" });
     const data = await res.json();
 
     setVotes(data.votes);
+    setHasVoted(true); // lock buttons
   }
 
   async function showResult() {
@@ -92,6 +98,7 @@ export default function App() {
     setScreen("settings");
     setResult(null);
     setWord("");
+    setHasVoted(false);
   }
 
   return (
@@ -176,14 +183,19 @@ export default function App() {
           <h2>Vote Player</h2>
 
           {Array.from({length:players}).map((_,i)=>(
-            <button key={i} onClick={()=>vote(i)}>
-              Player {i+1} ({votes[i]})
+            <button
+              key={i}
+              onClick={async () => {
+                  await vote(i);
+                  showResult();
+                }}
+              disabled={hasVoted}
+              
+            >
+              Player {i+1} 
             </button>
           ))}
 
-          <button className="big" onClick={showResult}>
-            Reveal Result
-          </button>
 
         </div>
       )}

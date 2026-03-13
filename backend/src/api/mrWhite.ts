@@ -54,9 +54,7 @@ for (const file of files) {
 }
 
 
-
-/* SETTINGS ROUTE */
-router.post("/settings", (req: Request, res: Response) => {
+router.post("/start", (req: Request, res: Response) => {
   const { category, players, imposters } = req.body;
 
   if (!categories[category]) {
@@ -76,18 +74,6 @@ router.post("/settings", (req: Request, res: Response) => {
     players,
     imposters
   };
-
-  res.json({
-    success: true,
-    settings
-  });
-});
-
-
-
-
-/* START GAME */
-router.post("/start", (req: Request, res: Response) => {
 
   const categoryData = categories[settings.category];
   if (!categoryData) {
@@ -126,6 +112,7 @@ router.post("/start", (req: Request, res: Response) => {
     imposters: settings.imposters
   });
 });
+
 
 
 
@@ -232,5 +219,10 @@ router.post("/restart", (req: Request, res: Response) => {
   });
 
 });
+
+
+
+
+
 
 export default router;
