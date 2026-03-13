@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 
 const API = "https://sideprojectnotion.duckdns.org/api";
-const mrWhiteAPI = "https://sideprojectnotion.org/mrWhite"
+const mrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite"
 
 export default function App() {
 
