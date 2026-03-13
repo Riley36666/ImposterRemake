@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
-const API = "https://sideprojectnotion.duckdns.org/api"; // change to your PC IP
+//const API = "https://sideprojectnotion.duckdns.org/api"; // change to your PC IP
+//const MrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite" //Change to IP
+const API = "http://localhost:9999/api"
+const MrWhiteAPI = "http://localhost:9999/mrWhite"
 
 export default function App() {
 
@@ -40,7 +43,20 @@ export default function App() {
     setScreen("player");
 
   }
+  async function saveSettingsmrWhite() {
+    await fetch(`${MrWhiteAPI}/settings`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ category, players, imposters })
+    });
+    await fetch(`${MrWhiteAPI}/start`, { method:"POST" });
 
+    setVotes(Array(players).fill(0));
+    setCurrentPlayer(0);
+    setScreen("player");
+
+
+  }
   async function revealWord() {
 
     const res = await fetch(`${API}/player/${currentPlayer}`);
@@ -121,7 +137,9 @@ export default function App() {
           <button onClick={saveSettings}>
             Start Game
           </button>
-
+          <button onClick={saveSettingsmrWhite}>
+            Play Mr White
+          </button>
         </div>
       )}
 
