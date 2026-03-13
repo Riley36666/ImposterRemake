@@ -1,6 +1,8 @@
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
+
+  background: linear-gradient(180deg, #ff5a3a, #ff2c55);
 }
 
 .app {
