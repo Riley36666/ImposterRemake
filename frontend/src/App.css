@@ -2,7 +2,7 @@ body {
   margin: 0;
   font-family: "Segoe UI", Arial, Helvetica, sans-serif;
 
-  background: linear-gradient(160deg, #ff5a3a, #ff2c55);
+  background: linear-gradient(135deg, #2a2a2a, #0b0b0b);
 }
 
 /* App container */
@@ -21,10 +21,11 @@ body {
 .card,
 .settingsPanel {
   width: 340px;
-  background: white;
+
+  background: linear-gradient(135deg, #ffffff, #e8f7fa);
+  backdrop-filter: blur(8px);
   border-radius: 24px;
   padding: 28px;
-
   text-align: center;
 
   box-shadow:
@@ -32,17 +33,6 @@ body {
     0 5px 10px rgba(0,0,0,0.1);
 
   animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Headings */
@@ -94,7 +84,7 @@ button {
   border: none;
   border-radius: 12px;
 
-  background: linear-gradient(135deg,#ff3c5c,#ff6a3c);
+  background: linear-gradient(135deg,#26c6da,#4f8cff);
   color: white;
 
   font-size: 16px;
@@ -225,4 +215,36 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.catButton {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: linear-gradient(135deg,#26c6da,#4f8cff);
+  color: white;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.catButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.catButton:active {
+  transform: scale(0.98);
+}
+.settingsPanel button.selected {
+  background: linear-gradient(135deg,#4caf50,#2e7d32);
+  color: white;
 }

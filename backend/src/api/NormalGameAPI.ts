@@ -13,16 +13,18 @@ type CategoryFile = {
 };
 
 type GameSettings = {
-  category: string;
+  categories: string[];
   players: number;
   imposters: number;
 };
 
+
 let settings: GameSettings = {
-  category: "animals",
+  categories: ["animals"],
   players: 4,
   imposters: 1
 };
+
 
 let game: {
   players: number;
@@ -54,12 +56,18 @@ for (const file of files) {
 }
 
 
-
+const categoryNames = Object.keys(categories);
 router.post("/start", (req: Request, res: Response) => {
-  const { category, players, imposters } = req.body;
+  const { selectedCategories: selectedCategories, players, imposters } = req.body;
 
-  if (!categories[category]) {
-    return res.status(400).json({ error: "Invalid category" });
+  if (!selectedCategories || selectedCategories.length === 0) {
+    return res.status(400).json({ error: "No categories selected" });
+  }
+
+  for (const cat of selectedCategories) {
+    if (!categories[cat]) {
+      return res.status(400).json({ error: `Invalid category: ${cat}` });
+    }
   }
 
   if (!players || players < 2) {
@@ -71,24 +79,25 @@ router.post("/start", (req: Request, res: Response) => {
   }
 
   settings = {
-    category,
+    categories: selectedCategories,
     players,
     imposters
   };
 
-  const categoryData = categories[settings.category];
-  if (!categoryData) {
-  return res.status(400).json({ error: "Invalid category" });
-  }
-  const randomIndex = Math.floor(Math.random() * categoryData.pairs.length);
-  const pair = categoryData.pairs[randomIndex]!;
+  /* pick random category */
+  const randomCategory =
+    settings.categories[Math.floor(Math.random() * settings.categories.length)];
+
+  const categoryData = categories[randomCategory!];
+
+  const randomIndex = Math.floor(Math.random() * categoryData!.pairs.length);
+  const pair = categoryData!.pairs[randomIndex]!;
 
   const words = Array(settings.players).fill(pair.normal);
 
   const imposterIndexes: number[] = [];
 
   while (imposterIndexes.length < settings.imposters) {
-
     const rand = Math.floor(Math.random() * settings.players);
 
     if (!imposterIndexes.includes(rand)) {
@@ -108,11 +117,12 @@ router.post("/start", (req: Request, res: Response) => {
 
   res.json({
     success: true,
-    category: settings.category,
+    category: randomCategory,
     players: settings.players,
     imposters: settings.imposters
   });
 });
+
 
 
 
