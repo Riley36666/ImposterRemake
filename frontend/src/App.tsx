@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+// New update allowing multiple catergroies
+
+import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
 const API = "https://sideprojectnotion.duckdns.org/api";
 const mrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite";
+const APIdev = "http://localhost:9999/api";
+const mrWhiteAPIdev = "http://localhost:9999/mrWhite";
 
-type Screen = "main-menu" | "settings" | "player" | "vote" | "result";
+
+type Screen = "main-menu" | "settings" | "categories" |"player" | "vote" | "result";
 
 type Result = {
   votedOut: number;
@@ -14,9 +19,10 @@ type Result = {
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("main-menu");
-
+  // eslint-disable-next-line
+  const [useDev, setDev] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
-  const [category, setCategory] = useState("animals");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(["animals"]);
 
   const [players, setPlayers] = useState(4);
   const [imposters, setImposters] = useState(1);
@@ -29,8 +35,13 @@ export default function App() {
   const [votes, setVotes] = useState<number[]>([]);
   const [result, setResult] = useState<Result | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
-
-  const baseAPI = mrWhite ? mrWhiteAPI : API;
+  
+  const baseAPI = useMemo(() => {
+    if (useDev) {
+      return mrWhite ? mrWhiteAPIdev : APIdev;
+    }
+    return mrWhite ? mrWhiteAPI : API;
+  }, [useDev, mrWhite]);
 
   useEffect(() => {
     fetch(`${API}/categories`)
@@ -46,7 +57,16 @@ export default function App() {
   function goSettings() {
     setScreen("settings");
   }
-
+  function goCategories(){
+    setScreen("categories");
+  }
+  function toggleCategory(cat: string) {
+  setSelectedCategories(prev =>
+    prev.includes(cat)
+      ? prev.filter(c => c !== cat) 
+      : [...prev, cat] 
+  );
+}
   async function start() {
     if (players < 3) {
       alert("Minimum 3 players");
@@ -56,7 +76,7 @@ export default function App() {
     await fetch(`${baseAPI}/start`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ category, players, imposters })
+      body: JSON.stringify({ selectedCategories, players, imposters })
     });
 
     setVotes(Array(players).fill(0));
@@ -149,18 +169,7 @@ export default function App() {
 
       {screen === "settings" && (
         <div className="settingsPanel">
-
-          <div className="catergoryGroup">
-            <label>Category</label>
-            <select
-              value={category}
-              onChange={e => setCategory(e.target.value)}
-            >
-              {categories.map(c => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-          </div>
+          
 
           <div className="formGroup">
             <label>Players</label>
@@ -189,14 +198,32 @@ export default function App() {
               onChange={e => setMrWhite(e.target.checked)}
             />
           </div>
-
+          <button onClick={goCategories} className="catButton">
+            Select Categories
+          </button>
           <button onClick={goBack}>
             Return to Main Menu
           </button>
 
         </div>
       )}
+      {screen === "categories" && (
+  <div className="settingsPanel">
 
+    <h2>Select Categories</h2>
+
+    {categories.map(cat => (
+      <button
+        key={cat}
+        onClick={() => toggleCategory(cat)}
+        className={selectedCategories.includes(cat) ? "selected" : ""}
+      >
+        {cat}
+      </button>
+    ))}
+
+  </div>
+)}
       {screen === "player" && (
         <div className="card">
 
