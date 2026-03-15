@@ -23,7 +23,7 @@ app.get('/', (req: Request, res: Response) => {
 function startServer() {
     try{
         app.listen(port,"0.0.0.0", () => {      
-            console.log( `server started at http://localhost:${port}`);
+            console.log( `Server started at http://localhost:${port}`);
         });
     } catch {
         console.log("error")

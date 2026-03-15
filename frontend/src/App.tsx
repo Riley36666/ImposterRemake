@@ -1,5 +1,4 @@
-// New update allowing multiple catergroies
-
+// Updated with Timer ++ Adding Mr White guessing
 import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
@@ -8,19 +7,21 @@ const mrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite";
 const APIdev = "http://localhost:9999/api";
 const mrWhiteAPIdev = "http://localhost:9999/mrWhite";
 
-
-type Screen = "main-menu" | "settings" | "categories" |"player" | "vote" | "result";
+type Screen = "main-menu" | "settings" | "categories" | "player" | "vote" | "result";
 
 type Result = {
   votedOut: number;
   imposterCaught: boolean;
   imposters: number[];
+  mrWhite?: number[];
 };
 
 export default function App() {
+
   const [screen, setScreen] = useState<Screen>("main-menu");
   // eslint-disable-next-line
   const [useDev, setDev] = useState(false);
+
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["animals"]);
 
@@ -31,11 +32,17 @@ export default function App() {
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [word, setWord] = useState("");
   const [role, setRole] = useState("");
-  // eslint-disable-next-line
+
   const [votes, setVotes] = useState<number[]>([]);
   const [result, setResult] = useState<Result | null>(null);
+
   const [hasVoted, setHasVoted] = useState(false);
-  
+
+  const [timeLeft, setTimeLeft] = useState(60 * 3);
+
+  const [guess, setGuess] = useState("");
+  const [guessResult, setGuessResult] = useState("");
+
   const baseAPI = useMemo(() => {
     if (useDev) {
       return mrWhite ? mrWhiteAPIdev : APIdev;
@@ -50,6 +57,28 @@ export default function App() {
       .catch(() => console.log("Failed to load categories"));
   }, []);
 
+  function formatTime(seconds: number) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  }
+
+  useEffect(() => {
+    if (screen !== "vote") return;
+    setTimeLeft(60 * 5);
+    const timer = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(timer);
+          showResult();
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [screen]);
+
   function goBack() {
     setScreen("main-menu");
   }
@@ -57,17 +86,21 @@ export default function App() {
   function goSettings() {
     setScreen("settings");
   }
-  function goCategories(){
+
+  function goCategories() {
     setScreen("categories");
   }
+
   function toggleCategory(cat: string) {
-  setSelectedCategories(prev =>
-    prev.includes(cat)
-      ? prev.filter(c => c !== cat) 
-      : [...prev, cat] 
-  );
-}
+    setSelectedCategories(prev =>
+      prev.includes(cat)
+        ? prev.filter(c => c !== cat)
+        : [...prev, cat]
+    );
+  }
+
   async function start() {
+
     if (players < 3) {
       alert("Minimum 3 players");
       return;
@@ -75,47 +108,57 @@ export default function App() {
 
     await fetch(`${baseAPI}/start`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ selectedCategories, players, imposters })
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        selectedCategories,
+        players,
+        imposters
+      })
     });
 
     setVotes(Array(players).fill(0));
     setCurrentPlayer(0);
     setHasVoted(false);
     setWord("");
+
     setScreen("player");
+
   }
 
   async function revealWord() {
     try {
       const res = await fetch(`${baseAPI}/player/${currentPlayer}`);
       const data = await res.json();
-
-      setWord(data.word ? `Your word is: ${data.word}` : "You are Mr White");
+      setWord(
+        data.word
+          ? `Your word is: ${data.word}`
+          : "You are Mr White"
+      );
       setRole(data.isImposter ? "IMPOSTER" : "NORMAL");
     } catch {
       setWord("Server error");
     }
+
   }
 
   function nextPlayer() {
     setWord("");
-
     if (currentPlayer + 1 >= players) {
       setScreen("vote");
     } else {
       setCurrentPlayer(currentPlayer + 1);
     }
+
   }
 
   async function vote(id: number) {
     if (hasVoted) return;
-
     try {
       const res = await fetch(`${baseAPI}/voteplayer/${id}`, {
         method: "POST"
       });
-
       const data = await res.json();
 
       setVotes(data.votes);
@@ -126,10 +169,10 @@ export default function App() {
   }
 
   async function showResult() {
+
     try {
       const res = await fetch(`${baseAPI}/result`);
       const data = await res.json();
-
       setResult(data);
       setScreen("result");
     } catch {
@@ -137,24 +180,70 @@ export default function App() {
     }
   }
 
+  async function submitGuess() {
+
+    try {
+
+      const res = await fetch(`${baseAPI}/guess`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ guess })
+      });
+
+      const data = await res.json();
+
+      setGuessResult(data.message);
+
+    } catch {
+
+      setGuessResult("Server error");
+
+    }
+
+  }
+
   async function restart() {
-    await fetch(`${baseAPI}/restart`, { method: "POST" });
+
+    await fetch(`${baseAPI}/restart`, {
+      method: "POST"
+    });
 
     setScreen("main-menu");
     setResult(null);
+
     setWord("");
+    setGuess("");
+    setGuessResult("");
+
     setHasVoted(false);
+
+    setTimeLeft(60 * 5);
+
   }
 
   return (
+
     <div className="app">
 
-      {screen !== "main-menu" && screen !== "result" && screen !== "settings" && (
-        <button className="backArrow" onClick={goBack}>←</button>
-      )}
+      {screen !== "main-menu" &&
+        screen !== "result" &&
+        screen !== "settings" && (
+
+          <button
+            className="backArrow"
+            onClick={goBack}
+          >
+            ←
+          </button>
+
+        )}
 
       {screen === "main-menu" && (
+
         <div className="card">
+
           <h1>Imposter Game</h1>
 
           <button onClick={start}>
@@ -164,83 +253,133 @@ export default function App() {
           <button onClick={goSettings}>
             Settings
           </button>
+
         </div>
+
       )}
 
       {screen === "settings" && (
+
         <div className="settingsPanel">
-          
 
           <div className="formGroup">
+
             <label>Players</label>
+
             <input
               type="number"
               value={players}
-              onChange={e => setPlayers(Number(e.target.value))}
+              onChange={e =>
+                setPlayers(Number(e.target.value))
+              }
             />
+
           </div>
 
           <div className="formGroup">
+
             <label>Imposters</label>
+
             <input
               type="number"
               value={imposters}
-              onChange={e => setImposters(Number(e.target.value))}
+              onChange={e =>
+                setImposters(Number(e.target.value))
+              }
             />
+
           </div>
 
           <div className="formGroup checkbox">
-            <label htmlFor="mrwhite">Mr White Mode</label>
+
+            <label htmlFor="mrwhite">
+              Mr White Mode
+            </label>
+
             <input
               id="mrwhite"
               type="checkbox"
               checked={mrWhite}
-              onChange={e => setMrWhite(e.target.checked)}
+              onChange={e =>
+                setMrWhite(e.target.checked)
+              }
             />
+
           </div>
-          <button onClick={goCategories} className="catButton">
+
+          <button
+            onClick={goCategories}
+            className="catButton"
+          >
             Select Categories
           </button>
+
           <button onClick={goBack}>
             Return to Main Menu
           </button>
 
         </div>
+
       )}
+
       {screen === "categories" && (
-  <div className="settingsPanel">
 
-    <h2>Select Categories</h2>
+        <div className="settingsPanel">
 
-    {categories.map(cat => (
-      <button
-        key={cat}
-        onClick={() => toggleCategory(cat)}
-        className={selectedCategories.includes(cat) ? "selected" : ""}
-      >
-        {cat}
-      </button>
-    ))}
+          <h2>Select Categories</h2>
 
-  </div>
-)}
+          {categories.map(cat => (
+
+            <button
+              key={cat}
+              onClick={() =>
+                toggleCategory(cat)
+              }
+              className={
+                selectedCategories.includes(cat)
+                  ? "selected"
+                  : ""
+              }
+            >
+              {cat}
+            </button>
+
+          ))}
+
+        </div>
+
+      )}
+
       {screen === "player" && (
+
         <div className="card">
 
-          <h2>Player {currentPlayer + 1}</h2>
+          <h2>
+            Player {currentPlayer + 1}
+          </h2>
 
           {!word && (
-            <button className="big" onClick={revealWord}>
+
+            <button
+              className="big"
+              onClick={revealWord}
+            >
               Reveal Word
             </button>
+
           )}
 
           {word && (
+
             <div className="roleCard">
 
               <img
                 className="roleImage"
-                src={role === "IMPOSTER" ? "/imposter.png" : "/normal.png"}
+                src={
+                  role === "IMPOSTER"
+                    ? "/imposter.png"
+                    : "/normal.png"
+                }
                 alt="role"
               />
 
@@ -253,17 +392,31 @@ export default function App() {
               </button>
 
             </div>
+
           )}
 
         </div>
+
       )}
 
       {screen === "vote" && (
+
         <div className="card">
 
           <h2>Vote Player</h2>
 
-          {Array.from({ length: players }).map((_, i) => (
+          <h3
+            className={`timer ${
+              timeLeft <= 10 ? "danger" : ""
+            }`}
+          >
+            ⏱ {formatTime(timeLeft)}
+          </h3>
+
+          {Array.from({
+            length: players
+          }).map((_, i) => (
+
             <button
               key={i}
               onClick={async () => {
@@ -274,15 +427,21 @@ export default function App() {
             >
               Player {i + 1}
             </button>
+
           ))}
 
         </div>
+
       )}
 
       {screen === "result" && result && (
+
         <div className="card">
 
-          <h2>Player {result.votedOut + 1} was voted out</h2>
+          <h2>
+            Player {result.votedOut + 1} was
+            voted out
+          </h2>
 
           <h3>
             {result.imposterCaught
@@ -291,16 +450,43 @@ export default function App() {
           </h3>
 
           <p>
-            Imposters: {result.imposters.map(i => i + 1).join(", ")}
+            Imposters:{" "}
+            {result.imposters
+              .map(i => i + 1)
+              .join(", ")}
           </p>
 
-          <button onClick={restart}>
-            New Game
-          </button>
+          {mrWhite && result.mrWhite?.includes(result.votedOut) ? (
+  <>
+    <h3>Mr White can guess the word!</h3>
+
+    <input
+      type="text"
+      value={guess}
+      onChange={e => setGuess(e.target.value)}
+      placeholder="Enter your guess"
+    />
+
+    <button onClick={submitGuess}>
+      Submit Guess
+    </button>
+    <button onClick={restart}>
+      New Game
+    </button>
+    {guessResult && <p>{guessResult}</p>}
+  </>
+) : (
+  <button onClick={restart}>
+    New Game
+  </button>
+)}
 
         </div>
+
       )}
 
     </div>
+
   );
+
 }

@@ -199,12 +199,12 @@ router.get("/result", (req: Request, res: Response) => {
   const votedOut = game.votes.indexOf(maxVotes);
 
   const imposterCaught = game.imposters.includes(votedOut);
-
   res.json({
     imposters: game.imposters,
     votedOut,
     imposterCaught,
-    votes: game.votes
+    votes: game.votes,
+    mrWhite: game.imposters 
   });
 
 });
@@ -235,7 +235,28 @@ router.post("/restart", (req: Request, res: Response) => {
 
 });
 
-
+router.post("/guess", (req:Request, res:Response) => {
+  const guess = req.body?.guess;
+  
+if (!guess) {
+  return res.status(400).json({ error: "Guess required" });
+}
+if (!game) {
+  return res.status(400).json({ error: "Game has not started" })
+}
+const word = game.words.find(w => w !== "")
+  if(word === guess){
+    res.json({
+      success: true,
+      message: "won"
+    })
+  }else{
+    res.json({
+      success: true,
+      message: "lost"
+    })
+  }
+})
 
 
 
