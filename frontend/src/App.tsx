@@ -38,7 +38,7 @@ export default function App() {
 
   const [hasVoted, setHasVoted] = useState(false);
 
-  const [timeLeft, setTimeLeft] = useState(60 * 5);
+  const [timeLeft, setTimeLeft] = useState(60 * 3);
 
   const [guess, setGuess] = useState("");
   const [guessResult, setGuessResult] = useState("");
