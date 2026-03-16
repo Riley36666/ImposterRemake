@@ -2,9 +2,10 @@ import dotenv from "dotenv";
 import express, { Request, Response, Router } from "express";
 import api from "./api/NormalGameAPI";
 import mrWhite from "./api/mrWhite";
+import pc from "./api/PcChecks";
 import cors from "cors";
 
-
+import si from 'systeminformation';
 
 dotenv.config();
 const port = 9999;
@@ -14,8 +15,13 @@ app.use(cors(
 ));
 app.use(express.json());
 
+// API routes
 app.use('/api/', api);
 app.use('/mrWhite', mrWhite);
+app.use('/pc', pc)
+
+
+// Little Thing if someone opens the server (need to change to the built version of the front end)  
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!');
 });
@@ -29,5 +35,10 @@ function startServer() {
         console.log("error")
     }
 };
+
+
+
+
+
 
 startServer()
