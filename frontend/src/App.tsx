@@ -30,7 +30,7 @@ type Result = {
 export default function App() {
   const [screen, setScreen] = useState<Screen>("main-menu");
   // eslint-disable-next-line
-  const [useDev, setDev] = useState(true);
+  const [useDev, setDev] = useState(false);
 
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
