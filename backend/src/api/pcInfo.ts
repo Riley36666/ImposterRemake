@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import {getPublicIP, getPcInfo, getUser, discord} from './helperFunctions';
+import {getPublicIP, getPcInfo, getUser, discord, returnInfo} from './helperFunctions';
 const router = express.Router();
 
 
@@ -30,6 +30,13 @@ router.get("/discord", async (req: Request, res: Response) => {
   }
 });
 
-
+router.get("/info", async(req: Request, res: Response) => {
+  try {
+    const data = await returnInfo();
+    res.json({data});
+  } catch (err) {
+    console.error(err);
+  }
+})
 
 export default router

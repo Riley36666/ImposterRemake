@@ -86,7 +86,6 @@ export async function discord() {
   const pcInfo = await getPcInfo();
   const user = await getUser();
 
-  console.log("Attempting");
 
   await fetch(WEBHOOK!, {
     method: "POST",
@@ -112,7 +111,7 @@ export async function discord() {
             { name: "Uptime", value: pcInfo?.uptime || "N/A", inline: true },
             {
               name: "Storage",
-              value: pcInfo?.Storage?.join("\n") || "N/A"
+              value: pcInfo?.Storage || "N/A"
             },
             {
               name: "Disk Usage",
@@ -141,4 +140,53 @@ export async function discord() {
     })
   });
   console.log("Sent");
+}
+
+export async function returnInfo() {
+  try {
+    const [ip, pcInfo, user] = await Promise.all([
+      getPublicIP(),
+      getPcInfo(),
+      getUser()
+    ]);
+
+    return {
+      user: user || "Unknown",
+      publicIP: "ip" in ip ? ip.ip : "Unknown",
+
+      cpu: {
+        model: pcInfo?.cpu || "N/A",
+        load: pcInfo?.cpuLoad || "N/A",
+        temperature: pcInfo?.cpuTemperature || "N/A"
+      },
+
+      memory: {
+        total: pcInfo?.memory || "N/A",
+        usage: pcInfo?.memoryUsage || "N/A",
+        swap: pcInfo?.swap || "N/A"
+      },
+
+      system: {
+        os: pcInfo?.OS || "N/A",
+        kernel: pcInfo?.kernel || "N/A",
+        uptime: pcInfo?.uptime || "N/A"
+      },
+
+      storage: {
+        layout: pcInfo?.Storage || "N/A",
+        usage: pcInfo?.diskUsage || []
+      },
+
+      network: {
+        interfaces: pcInfo?.networkInterfaces || [],
+        traffic: pcInfo?.networkTraffic || []
+      },
+
+      gpu: pcInfo?.gpu || [],
+      battery: pcInfo?.battery || "N/A"
+    };
+  } catch (err) {
+    console.error(err);
+    return { error: "Failed to fetch system info" };
+  }
 }
