@@ -6,6 +6,8 @@ const API = "https://sideprojectnotion.duckdns.org/api";
 const mrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite";
 const APIdev = "http://localhost:9999/api";
 const mrWhiteAPIdev = "http://localhost:9999/mrWhite";
+const InfoAPI = "https://sideprojectnotion.duckdns.org/pc";
+const InfoAPIdev = "http://localhost:9999/pc";
 
 type Screen =
   | "main-menu"
@@ -15,7 +17,8 @@ type Screen =
   | "vote"
   | "result"
   | "mrWhiteWinner"
-  | "mrWhiteLoser";
+  | "mrWhiteLoser"
+  | "pcData";
 
 type Result = {
   votedOut: number;
@@ -27,7 +30,7 @@ type Result = {
 export default function App() {
   const [screen, setScreen] = useState<Screen>("main-menu");
   // eslint-disable-next-line
-  const [useDev, setDev] = useState(false);
+  const [useDev, setDev] = useState(true);
 
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([
@@ -52,12 +55,20 @@ export default function App() {
   const [guess, setGuess] = useState("");
   const [guessResult, setGuessResult] = useState("");
 
+  const [pcData, setPcData] = useState<any>(null);
+  const [loadingPc, setLoadingPc] = useState(false);
+
+
   const baseAPI = useMemo(() => {
     if (useDev) {
       return mrWhite ? mrWhiteAPIdev : APIdev;
     }
     return mrWhite ? mrWhiteAPI : API;
   }, [useDev, mrWhite]);
+  const basePCAPI = useMemo(() => {
+  return useDev ? InfoAPIdev : InfoAPI;
+    }, [useDev]);
+
 
   useEffect(() => {
     fetch(`${API}/categories`)
@@ -108,7 +119,22 @@ export default function App() {
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
   }
+  async function loadPcData() {
+  try {
+    setLoadingPc(true);
 
+    const res = await fetch(`${basePCAPI}/info`);
+    const json = await res.json();
+
+    setPcData(json.data);
+    setScreen("pcData");
+
+  } catch {
+    alert("Failed to load PC data");
+  } finally {
+    setLoadingPc(false);
+  }
+}
   async function start() {
     if (players < 3) {
       alert("Minimum 3 players");
@@ -282,8 +308,10 @@ export default function App() {
           <button onClick={goCategories} className="catButton">
             Select Categories
           </button>
+          <button onClick={loadPcData} className="catButton">
+            Open System Info
+          </button>
 
-          
         </div>
       )}
 
@@ -394,7 +422,75 @@ export default function App() {
         <button onClick={restart}>Restart</button>
         </div>
       )}
+      {screen === "pcData" && (
+        <div className="pcCard">
+          <h2>System Info</h2>
 
+          {!pcData && <p>Loading...</p>}
+
+          {pcData && (
+            <div className="pcGrid">
+              <div className="pcSection">
+                <h3>User</h3>
+                <p>{pcData.user}</p>
+                <p>{pcData.publicIP}</p>
+              </div>
+
+              <div className="pcSection">
+                <h3>CPU</h3>
+                <p>{pcData.cpu.model}</p>
+                <p>Load: {pcData.cpu.load}</p>
+                <p>Temp: {pcData.cpu.temperature}</p>
+              </div>
+
+              <div className="pcSection">
+                <h3>Memory</h3>
+                <p>Total: {pcData.memory.total}</p>
+                <p>Usage: {pcData.memory.usage}</p>
+                <p>Swap: {pcData.memory.swap}</p>
+              </div>
+
+              <div className="pcSection">
+                <h3>System</h3>
+                <p>OS: {pcData.system.os}</p>
+                <p>Kernel: {pcData.system.kernel}</p>
+                <p>Uptime: {pcData.system.uptime}</p>
+              </div>
+
+              <div className="pcSection">
+                <h3>Storage</h3>
+                <p>{pcData.storage.layout}</p>
+                {pcData.storage.usage.map((d: string, i: number) => (
+                  <p key={i}>{d}</p>
+                ))}
+              </div>
+
+              <div className="pcSection">
+                <h3>Network</h3>
+                {pcData.network.interfaces.map((n: string, i: number) => (
+                  <p key={i}>{n}</p>
+                ))}
+                <hr />
+                {pcData.network.traffic.map((t: string, i: number) => (
+                  <p key={i}>{t}</p>
+                ))}
+              </div>
+
+              <div className="pcSection">
+                <h3>GPU</h3>
+                {pcData.gpu.map((g: string, i: number) => (
+                  <p key={i}>{g}</p>
+                ))}
+              </div>
+
+              <div className="pcSection">
+                <h3>Battery</h3>
+                <p>{pcData.battery}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

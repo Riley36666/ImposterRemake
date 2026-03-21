@@ -264,3 +264,51 @@ input[type="checkbox"] {
 
   animation: fadeIn 0.3s ease;
 }
+
+.pcCard {
+  width: 90%;
+  max-width: 900px;
+  background: linear-gradient(160deg, #1f1f1f, #0a0a0a);
+  border-radius: 20px;
+  padding: 20px;
+  color: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.pcGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.pcSection {
+  background: rgba(255,255,255,0.05);
+  border-radius: 15px;
+  padding: 12px;
+  transition: 0.2s;
+}
+
+.pcSection:hover {
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-2px);
+}
+
+.pcSection h3 {
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #00d4ff;
+}
+
+.pcSection p {
+  margin: 3px 0;
+  font-size: 13px;
+  color: #ddd;
+  word-break: break-word;
+}
+
+.pcSection hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin: 6px 0;
+}
