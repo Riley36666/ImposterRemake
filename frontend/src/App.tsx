@@ -1,13 +1,9 @@
-// Updating UI
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 
-const API = "https://sideprojectnotion.duckdns.org/api";
-const mrWhiteAPI = "https://sideprojectnotion.duckdns.org/mrWhite";
-const APIdev = "http://localhost:9999/api";
-const mrWhiteAPIdev = "http://localhost:9999/mrWhite";
-const InfoAPI = "https://sideprojectnotion.duckdns.org/pc";
-const InfoAPIdev = "http://localhost:9999/pc";
+const API = "/api";
+const MR_WHITE_API = "/mrWhite";
+const PC_API = "/pc";
 
 type Screen =
   | "main-menu"
@@ -29,13 +25,9 @@ type Result = {
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("main-menu");
-  // eslint-disable-next-line
-  const [useDev, setDev] = useState(true);
 
   const [categories, setCategories] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([
-    "animals",
-  ]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>((["animals"]));
 
   const [players, setPlayers] = useState(4);
   const [imposters, setImposters] = useState(1);
@@ -49,7 +41,6 @@ export default function App() {
   const [result, setResult] = useState<Result | null>(null);
 
   const [hasVoted, setHasVoted] = useState(false);
-
   const [timeLeft, setTimeLeft] = useState(60 * 3);
 
   const [guess, setGuess] = useState("");
@@ -58,17 +49,9 @@ export default function App() {
   const [pcData, setPcData] = useState<any>(null);
   const [loadingPc, setLoadingPc] = useState(false);
 
-
-  const baseAPI = useMemo(() => {
-    if (useDev) {
-      return mrWhite ? mrWhiteAPIdev : APIdev;
-    }
-    return mrWhite ? mrWhiteAPI : API;
-  }, [useDev, mrWhite]);
-  const basePCAPI = useMemo(() => {
-  return useDev ? InfoAPIdev : InfoAPI;
-    }, [useDev]);
-
+  // 🔥 unified APIs
+  const baseAPI = mrWhite ? MR_WHITE_API : API;
+  const basePCAPI = PC_API;
 
   useEffect(() => {
     fetch(`${API}/categories`)
@@ -119,22 +102,23 @@ export default function App() {
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
   }
+
   async function loadPcData() {
-  try {
-    setLoadingPc(true);
+    try {
+      setLoadingPc(true);
 
-    const res = await fetch(`${basePCAPI}/info`);
-    const json = await res.json();
+      const res = await fetch(`${basePCAPI}/info`);
+      const json = await res.json();
 
-    setPcData(json.data);
-    setScreen("pcData");
-
-  } catch {
-    alert("Failed to load PC data");
-  } finally {
-    setLoadingPc(false);
+      setPcData(json.data);
+      setScreen("pcData");
+    } catch {
+      alert("Failed to load PC data");
+    } finally {
+      setLoadingPc(false);
+    }
   }
-}
+
   async function start() {
     if (players < 3) {
       alert("Minimum 3 players");
@@ -247,7 +231,6 @@ export default function App() {
     setGuessResult("");
 
     setHasVoted(false);
-
     setTimeLeft(60 * 5);
   }
 
@@ -256,7 +239,7 @@ export default function App() {
       {screen !== "main-menu" &&
         screen !== "result" &&
         screen !== "mrWhiteWinner" &&
-        screen !== "mrWhiteLoser" &&(
+        screen !== "mrWhiteLoser" && (
           <button className="backArrow" onClick={goBack}>
             ←
           </button>
@@ -265,9 +248,7 @@ export default function App() {
       {screen === "main-menu" && (
         <div className="card">
           <h1>Imposter Game</h1>
-
           <button onClick={start}>Start Game</button>
-
           <button onClick={goSettings}>Settings</button>
         </div>
       )}
@@ -276,7 +257,6 @@ export default function App() {
         <div className="settingsPanel">
           <div className="formGroup">
             <label>Players</label>
-
             <input
               type="number"
               value={players}
@@ -286,7 +266,6 @@ export default function App() {
 
           <div className="formGroup">
             <label>Imposters</label>
-
             <input
               type="number"
               value={imposters}
@@ -295,30 +274,22 @@ export default function App() {
           </div>
 
           <div className="formGroup checkbox">
-            <label htmlFor="mrwhite">Mr White Mode</label>
-
+            <label>Mr White Mode</label>
             <input
-              id="mrwhite"
               type="checkbox"
               checked={mrWhite}
               onChange={(e) => setMrWhite(e.target.checked)}
             />
           </div>
 
-          <button onClick={goCategories} className="catButton">
-            Select Categories
-          </button>
-          <button onClick={loadPcData} className="catButton">
-            Open System Info
-          </button>
-
+          <button onClick={goCategories}>Select Categories</button>
+          <button onClick={loadPcData}>Open System Info</button>
         </div>
       )}
 
       {screen === "categories" && (
         <div className="settingsPanel">
           <h2>Select Categories</h2>
-
           {categories.map((cat) => (
             <button
               key={cat}
@@ -336,23 +307,14 @@ export default function App() {
           <h2>Player {currentPlayer + 1}</h2>
 
           {!word && (
-            <button className="big" onClick={revealWord}>
-              Reveal Word
-            </button>
+            <button onClick={revealWord}>Reveal Word</button>
           )}
 
           {word && (
-            <div className="roleCard">
-              <img
-                className="roleImage"
-                src={role === "IMPOSTER" ? "/imposter.png" : "/normal.png"}
-                alt="role"
-              />
-
-              <div className="roleDesc">{word}</div>
-
-              <button onClick={nextPlayer}>Pass Phone</button>
-            </div>
+            <>
+              <p>{word}</p>
+              <button onClick={nextPlayer}>Next</button>
+            </>
           )}
         </div>
       )}
@@ -360,20 +322,10 @@ export default function App() {
       {screen === "vote" && (
         <div className="card">
           <h2>Vote Player</h2>
-
-          <h3 className={`timer ${timeLeft <= 10 ? "danger" : ""}`}>
-            ⏱ {formatTime(timeLeft)}
-          </h3>
+          <h3>⏱ {formatTime(timeLeft)}</h3>
 
           {Array.from({ length: players }).map((_, i) => (
-            <button
-              key={i}
-              onClick={async () => {
-                await vote(i);
-                await showResult();
-              }}
-              disabled={hasVoted}
-            >
+            <button key={i} onClick={() => vote(i)}>
               Player {i + 1}
             </button>
           ))}
@@ -383,112 +335,10 @@ export default function App() {
       {screen === "result" && result && (
         <div className="card">
           <h2>Player {result.votedOut + 1} was voted out</h2>
-
           <h3>
             {result.imposterCaught ? "Imposter Caught!" : "Imposter Escaped!"}
           </h3>
-
-          <p>Imposters: {result.imposters.map((i) => i + 1).join(", ")}</p>
-
-          {mrWhite && result.mrWhite?.includes(result.votedOut) ? (
-            <>
-              <h3>Mr White can guess the word!</h3>
-
-              <input
-                type="text"
-                value={guess}
-                onChange={(e) => setGuess(e.target.value)}
-                placeholder="Enter your guess"
-              />
-
-              <button onClick={submitGuess}>Submit Guess</button>
-
-              <button onClick={restart}>New Game</button>
-            </>
-          ) : (
-            <button onClick={restart}>New Game</button>
-          )}
-        </div>
-      )}
-      {screen === "mrWhiteWinner" && (
-        <div className="EndScreen">
-        <h1>You Won</h1>
-        <button onClick={restart}>Restart</button>
-        </div>
-      )}
-      {screen === "mrWhiteLoser" && (
-        <div className="EndScreen">
-        <h1>You lost</h1>
-        <button onClick={restart}>Restart</button>
-        </div>
-      )}
-      {screen === "pcData" && (
-        <div className="pcCard">
-          <h2>System Info</h2>
-
-          {!pcData && <p>Loading...</p>}
-
-          {pcData && (
-            <div className="pcGrid">
-              <div className="pcSection">
-                <h3>User</h3>
-                <p>{pcData.user}</p>
-                <p>{pcData.publicIP}</p>
-              </div>
-
-              <div className="pcSection">
-                <h3>CPU</h3>
-                <p>{pcData.cpu.model}</p>
-                <p>Load: {pcData.cpu.load}</p>
-                <p>Temp: {pcData.cpu.temperature}</p>
-              </div>
-
-              <div className="pcSection">
-                <h3>Memory</h3>
-                <p>Total: {pcData.memory.total}</p>
-                <p>Usage: {pcData.memory.usage}</p>
-                <p>Swap: {pcData.memory.swap}</p>
-              </div>
-
-              <div className="pcSection">
-                <h3>System</h3>
-                <p>OS: {pcData.system.os}</p>
-                <p>Kernel: {pcData.system.kernel}</p>
-                <p>Uptime: {pcData.system.uptime}</p>
-              </div>
-
-              <div className="pcSection">
-                <h3>Storage</h3>
-                <p>{pcData.storage.layout}</p>
-                {pcData.storage.usage.map((d: string, i: number) => (
-                  <p key={i}>{d}</p>
-                ))}
-              </div>
-
-              <div className="pcSection">
-                <h3>Network</h3>
-                {pcData.network.interfaces.map((n: string, i: number) => (
-                  <p key={i}>{n}</p>
-                ))}
-                <hr />
-                {pcData.network.traffic.map((t: string, i: number) => (
-                  <p key={i}>{t}</p>
-                ))}
-              </div>
-
-              <div className="pcSection">
-                <h3>GPU</h3>
-                {pcData.gpu.map((g: string, i: number) => (
-                  <p key={i}>{g}</p>
-                ))}
-              </div>
-
-              <div className="pcSection">
-                <h3>Battery</h3>
-                <p>{pcData.battery}</p>
-              </div>
-            </div>
-          )}
+          <button onClick={restart}>Restart</button>
         </div>
       )}
     </div>
